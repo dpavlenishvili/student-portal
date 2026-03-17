@@ -16,9 +16,10 @@
 // Prevent pull-to-refresh & overscroll bounce on the outer body
 html, body {
   overscroll-behavior: none;
-  overflow: hidden;
   height: 100%;
   width: 100%;
+  // Don't set overflow:hidden on body — the scroll lives inside .app-content
+  // Setting it here breaks -webkit-overflow-scrolling on some iOS versions
 }
 
 // Prevent text selection on interactive nav elements (feels native)

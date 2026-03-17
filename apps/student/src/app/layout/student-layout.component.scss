@@ -1,11 +1,14 @@
 .app-shell {
   max-width: 28rem;
-  min-height: 100dvh;
+  // MUST be height (not min-height) so flex children get a bounded scroll region
+  height: 100dvh;
+  box-sizing: border-box; // padding-top is included in the 100dvh
   margin-inline: auto;
   background: var(--portal-surface);
   display: flex;
   flex-direction: column;
   position: relative;
+  overflow: hidden; // contain scroll inside app-content only
   box-shadow: 0 0 60px rgb(0 0 0 / 0.15);
   // Extend behind the iOS status bar
   padding-top: env(safe-area-inset-top, 0);
@@ -15,8 +18,11 @@
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding-bottom: 5rem; // Space for bottom nav
+  // Must include safe-area so content isn't hidden behind the fixed nav + home indicator
+  padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
   -webkit-overflow-scrolling: touch;
+  // Allows momentum scrolling inside this container on iOS
+  overscroll-behavior-y: contain;
 }
 
 .bottom-nav {
