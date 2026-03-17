@@ -1,0 +1,37 @@
+@use '@fontsource/noto-sans-georgian/index.css';
+@use '@fortawesome/fontawesome-free/css/all.min.css';
+@use 'libs/shared-styles/src/index' as *;
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+// ── Mobile-native feel ──────────────────────────────────────────────
+
+// Remove tap flash on iOS/Android
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+// Prevent pull-to-refresh & overscroll bounce on the outer body
+html, body {
+  overscroll-behavior: none;
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
+}
+
+// Prevent text selection on interactive nav elements (feels native)
+.nav-item, .bottom-nav {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+// On real mobile: expand to full screen, hide desktop card styling
+@media (max-width: 480px) {
+  .app-shell {
+    max-width: 100% !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+}
