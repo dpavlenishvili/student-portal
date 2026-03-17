@@ -32,7 +32,10 @@
 
 .bottom-nav {
   flex-shrink: 0;
-  height: 4rem;
+  // Extra height to fill the home-indicator gap on iOS PWA
+  height: calc(4rem + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  box-sizing: border-box;
   background: var(--portal-surface);
   border-top: 1px solid var(--portal-border);
   display: flex;
