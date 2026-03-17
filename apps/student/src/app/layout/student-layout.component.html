@@ -1,13 +1,6 @@
-<div class="app-shell" [class.dark]="theme.isDark()">
-  <main class="app-content">
-    <router-outlet />
-  </main>
-</div>
-
-<!-- nav is a SIBLING of app-shell, not a child.
-     app-shell has transform:translateX(-50%) which would make it a containing
-     block for fixed children — nav would then be fixed relative to the shell,
-     not the viewport.  As a sibling it is truly viewport-fixed. -->
+<main class="app-content" [class.dark]="theme.isDark()">
+  <router-outlet />
+</main>
 <nav class="bottom-nav" [class.dark]="theme.isDark()">
   <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: false}" class="nav-item">
     <i class="fas fa-house"></i>

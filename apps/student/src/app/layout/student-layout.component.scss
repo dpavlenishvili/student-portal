@@ -1,23 +1,22 @@
-// NAV HEIGHT token — single source of truth
-$nav-h: 4rem;
+// ── Pure flexbox layout — NO position:fixed ──────────────────────────
+// On iOS PWA standalone, position:fixed bottom:0 does NOT reach the
+// physical screen bottom (it stops at the safe-area edge, leaving a
+// ~34px gap). Instead we use a full-height flex chain:
+//   html → body → app-root → :host → content + nav
+// The height is set by JS using window.screen.height in standalone
+// mode, which IS the true physical screen height.
 
-.app-shell {
-  position: fixed;
-  top: 0;
-  // Leave room at the bottom for the nav bar
-  bottom: $nav-h;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100%;
-  max-width: 28rem;
-  box-sizing: border-box;
-  background: var(--portal-surface);
+:host {
   display: flex;
   flex-direction: column;
+  // --app-height is set by JS (screen.height in PWA, innerHeight otherwise)
+  height: var(--app-height, 100dvh);
+  width: 100%;
+  max-width: 28rem;
+  margin: 0 auto;
+  background: var(--portal-surface);
   overflow: hidden;
   box-shadow: 0 0 60px rgb(0 0 0 / 0.15);
-  // Push content below the iOS status bar / Dynamic Island
-  padding-top: env(safe-area-inset-top, 0);
 }
 
 .app-content {
@@ -26,30 +25,20 @@ $nav-h: 4rem;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
+  // Push content below iOS status bar / Dynamic Island
+  padding-top: env(safe-area-inset-top, 0);
+  background: var(--portal-surface);
 }
 
-// ── Bottom nav — truly viewport-fixed, no transform ancestor ──────────────
-// Lives as a SIBLING of .app-shell in the DOM so that the shell's
-// transform:translateX(-50%) does NOT create a containing block for it.
-// bottom:0 therefore means the physical screen bottom on iOS PWA.
 .bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: $nav-h;
-  z-index: 200;
+  flex-shrink: 0;
+  height: 4rem;
   background: var(--portal-surface);
   border-top: 1px solid var(--portal-border);
   display: flex;
   align-items: stretch;
   box-shadow: 0 -2px 10px rgb(0 0 0 / 0.05);
-
-  // Dark-mode colours come from the class toggled on this element directly
-  &.dark {
-    background: var(--portal-surface);
-    border-top-color: var(--portal-border);
-  }
+  z-index: 100;
 }
 
 .nav-item {
@@ -96,4 +85,12 @@ $nav-h: 4rem;
   }
 
   &:active i { transform: scale(0.9); }
+}
+
+// On real mobile: expand to full screen, hide desktop card styling
+@media (max-width: 480px) {
+  :host {
+    max-width: 100% !important;
+    box-shadow: none !important;
+  }
 }

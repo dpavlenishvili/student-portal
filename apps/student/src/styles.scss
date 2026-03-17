@@ -13,33 +13,27 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-// Prevent pull-to-refresh & overscroll bounce on the outer body
+// Full-height flex chain: html → body → app-root → portal-student-layout
+// This ensures the layout fills the entire physical screen on iOS PWA
+// without relying on position:fixed (which doesn't reach the home
+// indicator zone in standalone mode).
 html, body {
-  overscroll-behavior: none;
   height: 100%;
-  width: 100%;
-  // Don't set overflow:hidden on body — the scroll lives inside .app-content
-  // Setting it here breaks -webkit-overflow-scrolling on some iOS versions
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+  background: var(--portal-surface);
 }
 
-// ThemeService already toggles .dark on <html>.
-// This fills any gap below 100dvh on iOS PWA (home indicator zone) with the
-// correct surface color so it's invisible instead of showing OS background.
-html {
-  background: var(--portal-surface);
+app-root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 // Prevent text selection on interactive nav elements (feels native)
 .nav-item, .bottom-nav {
   user-select: none;
   -webkit-user-select: none;
-}
-
-// On real mobile: expand to full screen, hide desktop card styling
-@media (max-width: 480px) {
-  .app-shell {
-    max-width: 100% !important;
-    box-shadow: none !important;
-    border-radius: 0 !important;
-  }
 }
