@@ -1,0 +1,66 @@
+<div class="p-6 space-y-6">
+  <div class="flex justify-between items-center">
+    <h1 class="text-2xl font-bold text-slate-800 dark:text-white">პრობლემები და ხარვეზები</h1>
+    <span class="text-sm text-slate-500">სულ: {{ store.issues().length }}</span>
+  </div>
+
+  <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+    <div class="divide-y divide-slate-100 dark:divide-slate-800">
+      @for (issue of store.issues(); track issue.id) {
+        <div class="p-5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer" (click)="selectIssue(issue)">
+          <div class="flex justify-between items-start">
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold" [ngClass]="statusClass(issue.status)">
+                  {{ statusLabel(issue.status) }}
+                </span>
+                <span class="text-xs font-bold text-slate-500 uppercase">{{ issue.category }}</span>
+              </div>
+              <h3 class="text-sm font-bold text-slate-800 dark:text-white">{{ issue.studentName }}</h3>
+              <p class="text-xs text-slate-500 mt-1 line-clamp-2">{{ issue.description }}</p>
+            </div>
+            <span class="text-xs text-slate-400 ml-4 shrink-0">{{ issue.date | date:'dd.MM.yy' }}</span>
+          </div>
+          @if (issue.adminFeedback) {
+            <div class="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+              <p class="text-xs text-blue-700 dark:text-blue-300">{{ issue.adminFeedback }}</p>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  @if (selectedIssue()) {
+    <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" (click)="closeDetail()">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-lg w-full p-6 max-h-[80vh] overflow-y-auto" (click)="$event.stopPropagation()">
+        <div class="flex justify-between items-start mb-4">
+          <div>
+            <h3 class="font-bold text-slate-900 dark:text-white">{{ selectedIssue()!.studentName }}</h3>
+            <p class="text-xs text-slate-400 font-mono">{{ selectedIssue()!.personalId }}</p>
+          </div>
+          <button (click)="closeDetail()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+        </div>
+
+        <div class="space-y-3 mb-4">
+          <div class="flex gap-2">
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold" [ngClass]="statusClass(selectedIssue()!.status)">{{ statusLabel(selectedIssue()!.status) }}</span>
+            <span class="text-xs font-bold text-slate-500 uppercase">{{ selectedIssue()!.category }}</span>
+          </div>
+          <p class="text-sm text-slate-700 dark:text-slate-300">{{ selectedIssue()!.description }}</p>
+        </div>
+
+        <div class="space-y-3">
+          <label class="block text-xs font-bold text-slate-500 uppercase">ადმინის კომენტარი</label>
+          <textarea [ngModel]="feedback()" (ngModelChange)="feedback.set($event)" rows="3"
+            class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-sm focus:outline-none focus:border-blue-500 text-slate-900 dark:text-white resize-none"></textarea>
+
+          <div class="flex gap-2">
+            <button (click)="updateStatus('review')" class="flex-1 py-2 bg-yellow-500 text-white rounded-lg text-xs font-bold hover:bg-yellow-600 transition-colors">განხილვაში</button>
+            <button (click)="updateStatus('resolved')" class="flex-1 py-2 bg-green-600 text-white rounded-lg text-xs font-bold hover:bg-green-700 transition-colors">გადაწყვეტილი</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

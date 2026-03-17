@@ -1,0 +1,86 @@
+<div class="admin-shell" [class.dark]="theme.isDark()" [class.sidebar-collapsed]="sidebarCollapsed()">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <i class="fas fa-shield-halved"></i>
+        @if (!sidebarCollapsed()) {
+          <span>ადმინ პანელი</span>
+        }
+      </div>
+      <button class="sidebar-toggle btn btn--icon btn--secondary" (click)="toggleSidebar()">
+        <i [class]="sidebarCollapsed() ? 'fas fa-chevron-right' : 'fas fa-chevron-left'"></i>
+      </button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a routerLink="/dashboard" routerLinkActive="active" class="nav-link">
+        <i class="fas fa-chart-line"></i>
+        @if (!sidebarCollapsed()) { <span>დეშბორდი</span> }
+      </a>
+      <a routerLink="/students" routerLinkActive="active" class="nav-link">
+        <i class="fas fa-users"></i>
+        @if (!sidebarCollapsed()) { <span>სტუდენტები</span> }
+      </a>
+      <a routerLink="/mobility" routerLinkActive="active" class="nav-link">
+        <i class="fas fa-right-left"></i>
+        @if (!sidebarCollapsed()) { <span>მობილობა</span> }
+      </a>
+      <a routerLink="/surveys" routerLinkActive="active" class="nav-link">
+        <i class="fas fa-clipboard-list"></i>
+        @if (!sidebarCollapsed()) { <span>კვლევები</span> }
+      </a>
+      <a routerLink="/issues" routerLinkActive="active" class="nav-link">
+        <i class="fas fa-triangle-exclamation"></i>
+        @if (!sidebarCollapsed()) { <span>პრობლემები</span> }
+        @if (pendingIssueCount > 0) {
+          <span class="nav-badge">{{ pendingIssueCount }}</span>
+        }
+      </a>
+      <a routerLink="/minister" routerLinkActive="active" class="nav-link">
+        <i class="fas fa-message"></i>
+        @if (!sidebarCollapsed()) { <span>მინისტრი</span> }
+        @if (pendingQuestionCount > 0) {
+          <span class="nav-badge">{{ pendingQuestionCount }}</span>
+        }
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="nav-link nav-link--btn" (click)="theme.toggle()">
+        <i [class]="theme.isDark() ? 'fas fa-sun' : 'fas fa-moon'"></i>
+        @if (!sidebarCollapsed()) {
+          <span>{{ theme.isDark() ? 'ნათელი' : 'მუქი' }}</span>
+        }
+      </button>
+      <button class="nav-link nav-link--btn nav-link--danger" (click)="logout()">
+        <i class="fas fa-right-from-bracket"></i>
+        @if (!sidebarCollapsed()) { <span>გასვლა</span> }
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main content area -->
+  <div class="admin-main">
+    <header class="admin-header">
+      <div class="admin-header-left">
+        <h2 class="admin-page-title">სტუდენტების მართვის სისტემა</h2>
+      </div>
+      <div class="admin-header-right">
+        <div class="admin-user">
+          <div class="admin-avatar">
+            <i class="fas fa-user-shield"></i>
+          </div>
+          @if (authStore.username()) {
+            <span class="admin-username">{{ authStore.username() }}</span>
+          }
+        </div>
+      </div>
+    </header>
+
+    <main class="admin-content">
+      <router-outlet />
+    </main>
+  </div>
+</div>

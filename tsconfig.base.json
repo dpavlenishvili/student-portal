@@ -1,0 +1,36 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "rootDir": ".",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "es2015",
+    "module": "esnext",
+    "lib": ["es2020", "dom"],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@portal/shared": ["libs/shared/src/index.ts"],
+      "@portal/student/auth": ["libs/student/auth/src/index.ts"],
+      "@portal/student/dashboard": ["libs/student/dashboard/src/index.ts"],
+      "@portal/student/mobility": ["libs/student/mobility/src/index.ts"],
+      "@portal/student/profile": ["libs/student/profile/src/index.ts"],
+      "@portal/student/surveys": ["libs/student/surveys/src/index.ts"],
+      "@portal/student/ask-minister": ["libs/student/ask-minister/src/index.ts"],
+      "@portal/student/issue-report": ["libs/student/issue-report/src/index.ts"],
+      "@portal/admin/auth": ["libs/admin/auth/src/index.ts"],
+      "@portal/admin/dashboard": ["libs/admin/dashboard/src/index.ts"],
+      "@portal/admin/students": ["libs/admin/students/src/index.ts"],
+      "@portal/admin/mobility": ["libs/admin/mobility/src/index.ts"],
+      "@portal/admin/surveys": ["libs/admin/surveys/src/index.ts"],
+      "@portal/admin/issues": ["libs/admin/issues/src/index.ts"],
+      "@portal/admin/minister": ["libs/admin/minister/src/index.ts"]
+    }
+  },
+  "exclude": ["node_modules", "tmp"]
+}

@@ -1,0 +1,114 @@
+<div class="space-y-8 p-6">
+  <!-- KPI Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col justify-between h-32 hover:shadow-md transition-all group">
+      <div class="flex justify-between items-start">
+        <div>
+          <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">სულ სტუდენტი</p>
+          <h3 class="text-3xl font-black text-slate-800 dark:text-white mt-2">{{ store.allStudents().length }}</h3>
+        </div>
+        <div class="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+          <i class="fa-solid fa-users"></i>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 text-xs font-medium text-green-600">
+        <i class="fa-solid fa-arrow-trend-up"></i>
+        <span>+2.5% წინა თვესთან</span>
+      </div>
+    </div>
+
+    <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col justify-between h-32 hover:shadow-md transition-all group">
+      <div class="flex justify-between items-start">
+        <div>
+          <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">მობილობა</p>
+          <h3 class="text-3xl font-black text-slate-800 dark:text-white mt-2">{{ store.mobilityApplications().length }}</h3>
+        </div>
+        <div class="w-10 h-10 rounded-lg bg-purple-50 dark:bg-purple-900/30 text-purple-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+          <i class="fa-solid fa-route"></i>
+        </div>
+      </div>
+      <div class="text-xs text-slate-400">მიმდინარე სემესტრი</div>
+    </div>
+
+    <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col justify-between h-32 hover:shadow-md transition-all group">
+      <div class="flex justify-between items-start">
+        <div>
+          <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">შეტყობინებები</p>
+          <h3 class="text-3xl font-black text-slate-800 dark:text-white mt-2">{{ store.ministerQuestions().length }}</h3>
+        </div>
+        <div class="w-10 h-10 rounded-lg bg-orange-50 dark:bg-orange-900/30 text-orange-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+          <i class="fa-solid fa-envelope"></i>
+        </div>
+      </div>
+      <div class="text-xs text-slate-400">{{ pendingQuestions() }} პასუხგაუცემელი</div>
+    </div>
+
+    <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col justify-between h-32 hover:shadow-md transition-all group">
+      <div class="flex justify-between items-start">
+        <div>
+          <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">ხარვეზები</p>
+          <h3 class="text-3xl font-black text-slate-800 dark:text-white mt-2">{{ store.issues().length }}</h3>
+        </div>
+        <div class="w-10 h-10 rounded-lg bg-red-50 dark:bg-red-900/30 text-red-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+      </div>
+      <div class="text-xs text-slate-400">{{ newIssues() }} ახალი</div>
+    </div>
+  </div>
+
+  <!-- Chart + Activity -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 h-96">
+      <h3 class="font-bold text-slate-800 dark:text-white mb-6">მობილობის დინამიკა (2024)</h3>
+      <div class="h-64 flex items-end justify-between gap-2 px-4">
+        @for (h of chartHeights; track $index) {
+          <div class="w-full h-full flex items-end">
+            <div [style.height.%]="h" class="w-full bg-blue-500 rounded-t-lg transition-all duration-500 hover:bg-blue-600 relative group">
+              <div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                {{ h }}%
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+      <div class="flex justify-between mt-4 text-xs text-slate-400 font-bold uppercase">
+        @for (m of months; track $index) {
+          <span>{{ m }}</span>
+        }
+      </div>
+    </div>
+
+    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 h-96 overflow-hidden flex flex-col">
+      <h3 class="font-bold text-slate-800 dark:text-white mb-4">ბოლო აქტივობა</h3>
+      <div class="flex-1 overflow-y-auto space-y-4 pr-2">
+        @for (app of store.mobilityApplications().slice(0, 5); track app.id) {
+          <div class="flex gap-4 items-start">
+            <div class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 shrink-0">
+              <i class="fa-solid fa-file-signature text-xs"></i>
+            </div>
+            <div>
+              <p class="text-sm text-slate-800 dark:text-slate-200">
+                <span class="font-bold">{{ app.studentName }}</span> შეავსო განაცხადი მობილობაზე.
+              </p>
+              <p class="text-xs text-slate-400 mt-1">{{ app.date | date:'short' }}</p>
+            </div>
+          </div>
+        }
+        @for (issue of store.issues().slice(0, 3); track issue.id) {
+          <div class="flex gap-4 items-start">
+            <div class="w-8 h-8 rounded-full bg-red-50 flex items-center justify-center text-red-500 shrink-0">
+              <i class="fa-solid fa-triangle-exclamation text-xs"></i>
+            </div>
+            <div>
+              <p class="text-sm text-slate-800 dark:text-slate-200">
+                დაფიქსირდა ხარვეზი: <span class="font-medium">{{ issue.category }}</span>
+              </p>
+              <p class="text-xs text-slate-400 mt-1">{{ issue.date | date:'short' }}</p>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

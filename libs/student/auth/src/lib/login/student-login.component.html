@@ -1,0 +1,71 @@
+<div class="login-page">
+  <div class="login-bg-blob login-bg-blob--1"></div>
+  <div class="login-bg-blob login-bg-blob--2"></div>
+
+  <div class="login-card">
+    <div class="login-header">
+      <div class="login-logo">
+        <i class="fas fa-graduation-cap"></i>
+      </div>
+      <h1 class="login-title">სტუდენტის პორტალი</h1>
+      <p class="login-subtitle">შეიყვანეთ თქვენი სასწავლო სერთიფიკატები</p>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="login-form">
+      @if (errorMessage()) {
+        <div class="alert-error" role="alert">
+          <i class="fas fa-circle-exclamation"></i>
+          {{ errorMessage() }}
+        </div>
+      }
+
+      <div class="form-group">
+        <label for="username">მომხმარებლის სახელი</label>
+        <input
+          id="username"
+          type="text"
+          formControlName="username"
+          placeholder="მომხმარებლის სახელი"
+          autocomplete="username"
+          [class.invalid]="form.get('username')?.invalid && form.get('username')?.touched"
+        />
+        @if (form.get('username')?.invalid && form.get('username')?.touched) {
+          <span class="error-msg"><i class="fas fa-circle-xmark"></i> სავალდებულო ველი</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="password">პაროლი</label>
+        <div class="password-wrapper">
+          <input
+            id="password"
+            [type]="showPassword() ? 'text' : 'password'"
+            formControlName="password"
+            placeholder="••••••••"
+            autocomplete="current-password"
+            [class.invalid]="form.get('password')?.invalid && form.get('password')?.touched"
+          />
+          <button type="button" class="password-toggle" (click)="togglePassword()" tabindex="-1">
+            <i [class]="showPassword() ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+          </button>
+        </div>
+        @if (form.get('password')?.invalid && form.get('password')?.touched) {
+          <span class="error-msg"><i class="fas fa-circle-xmark"></i> მინიმუმ 6 სიმბოლო</span>
+        }
+      </div>
+
+      <button type="submit" class="btn btn--primary btn--full login-btn" [disabled]="isLoading()">
+        @if (isLoading()) {
+          <i class="fas fa-spinner fa-spin"></i> შესვლა...
+        } @else {
+          <i class="fas fa-right-to-bracket"></i> შესვლა
+        }
+      </button>
+
+      <div class="demo-hint">
+        <i class="fas fa-circle-info"></i>
+        <span><strong>დემო:</strong> student / student123</span>
+      </div>
+    </form>
+  </div>
+</div>

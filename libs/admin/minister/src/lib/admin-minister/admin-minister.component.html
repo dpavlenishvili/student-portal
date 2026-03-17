@@ -1,0 +1,85 @@
+<div class="p-6 space-y-6">
+  <div class="flex justify-between items-center">
+    <h1 class="text-2xl font-bold text-slate-800 dark:text-white">შეკითხვები მინისტრს</h1>
+    <span class="text-sm text-slate-500">სულ: {{ store.ministerQuestions().length }}</span>
+  </div>
+
+  <!-- Filter tabs -->
+  <div class="flex p-1 bg-slate-100 dark:bg-slate-700 rounded-xl w-fit">
+    <button (click)="filter.set('all')" class="px-4 py-2 rounded-lg text-xs font-bold transition-all"
+      [class]="filter() === 'all' ? 'bg-white dark:bg-slate-600 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500'">
+      ყველა
+    </button>
+    <button (click)="filter.set('pending')" class="px-4 py-2 rounded-lg text-xs font-bold transition-all"
+      [class]="filter() === 'pending' ? 'bg-white dark:bg-slate-600 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500'">
+      გაუცემელი
+    </button>
+    <button (click)="filter.set('answered')" class="px-4 py-2 rounded-lg text-xs font-bold transition-all"
+      [class]="filter() === 'answered' ? 'bg-white dark:bg-slate-600 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500'">
+      პასუხგაცემული
+    </button>
+  </div>
+
+  <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+    <div class="divide-y divide-slate-100 dark:divide-slate-800">
+      @for (q of filteredQuestions(); track q.id) {
+        <div class="p-5 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors" (click)="selectQuestion(q)">
+          <div class="flex justify-between items-start">
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-[10px] px-2 py-0.5 rounded-full font-bold"
+                  [ngClass]="q.status === 'answered' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'">
+                  {{ q.status === 'answered' ? 'პასუხგაცემული' : 'მოლოდინში' }}
+                </span>
+              </div>
+              <h3 class="font-bold text-sm text-slate-800 dark:text-white">{{ q.subject }}</h3>
+              <p class="text-xs text-slate-500 mt-0.5">{{ q.studentName }} · {{ q.personalId }}</p>
+              <p class="text-xs text-slate-500 mt-1 line-clamp-2">{{ q.body }}</p>
+            </div>
+            <span class="text-xs text-slate-400 ml-4 shrink-0">{{ q.date | date:'dd.MM.yy' }}</span>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  @if (selectedQuestion()) {
+    <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" (click)="closeDetail()">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-lg w-full p-6 max-h-[80vh] overflow-y-auto" (click)="$event.stopPropagation()">
+        <div class="flex justify-between items-start mb-4">
+          <div>
+            <h3 class="font-bold text-slate-900 dark:text-white">{{ selectedQuestion()!.subject }}</h3>
+            <p class="text-xs text-slate-400">{{ selectedQuestion()!.studentName }} · {{ selectedQuestion()!.personalId }}</p>
+          </div>
+          <button (click)="closeDetail()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+        </div>
+
+        <div class="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 mb-4">
+          <p class="text-sm text-slate-700 dark:text-slate-300">{{ selectedQuestion()!.body }}</p>
+          <p class="text-xs text-slate-400 mt-2">{{ selectedQuestion()!.date | date:'dd.MM.yyyy' }}</p>
+        </div>
+
+        @if (selectedQuestion()!.status === 'pending') {
+          <div class="space-y-3">
+            <label class="block text-xs font-bold text-slate-500 uppercase">პასუხი</label>
+            <textarea [ngModel]="answerText()" (ngModelChange)="answerText.set($event)" rows="4"
+              class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-sm focus:outline-none focus:border-blue-500 text-slate-900 dark:text-white resize-none"
+              placeholder="ჩაწერეთ ოფიციალური პასუხი..."></textarea>
+            <button (click)="submitAnswer()" [disabled]="!answerText()"
+              class="w-full py-2.5 bg-blue-600 text-white rounded-lg font-bold text-sm hover:bg-blue-700 disabled:opacity-50 transition-colors">
+              პასუხის გაგზავნა
+            </button>
+          </div>
+        } @else {
+          <div class="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4">
+            <div class="flex items-center gap-2 mb-2">
+              <i class="fa-solid fa-certificate text-blue-600"></i>
+              <span class="text-xs font-bold text-blue-700 uppercase">ოფიციალური პასუხი</span>
+            </div>
+            <p class="text-sm text-slate-700 dark:text-slate-200">{{ selectedQuestion()!.answer }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,195 @@
+.admin-shell {
+  display: flex;
+  min-height: 100dvh;
+  background: var(--portal-surface-3);
+}
+
+// ---- Sidebar ----
+.sidebar {
+  width: 16rem;
+  min-height: 100dvh;
+  background: var(--portal-surface);
+  border-right: 1px solid var(--portal-border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 50;
+  transition: width 0.25s ease;
+  overflow: hidden;
+
+  .admin-shell.sidebar-collapsed & {
+    width: 4rem;
+  }
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--portal-sp-4);
+  border-bottom: 1px solid var(--portal-border);
+  min-height: 4rem;
+}
+
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: var(--portal-sp-3);
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--portal-primary);
+  white-space: nowrap;
+  overflow: hidden;
+
+  i { font-size: 1.25rem; flex-shrink: 0; }
+}
+
+.sidebar-toggle {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  font-size: 0.75rem;
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: var(--portal-sp-4) var(--portal-sp-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--portal-sp-1);
+  overflow-y: auto;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: var(--portal-sp-3);
+  padding: var(--portal-sp-3) var(--portal-sp-3);
+  border-radius: var(--portal-radius-lg);
+  color: var(--portal-text-muted);
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+  overflow: visible;
+  position: relative;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+  width: 100%;
+  text-align: left;
+
+  i { font-size: 1rem; flex-shrink: 0; width: 1rem; text-align: center; }
+
+  &:hover { background: var(--portal-surface-3); color: var(--portal-text); }
+
+  &.active {
+    background: rgb(30 58 95 / 0.1);
+    color: var(--portal-primary);
+    font-weight: 600;
+  }
+
+  &--danger:hover { background: #fee2e2; color: var(--portal-danger); }
+}
+
+.nav-badge {
+  margin-left: auto;
+  background: var(--portal-danger);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: var(--portal-radius-full);
+  flex-shrink: 0;
+
+  .admin-shell.sidebar-collapsed & {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    margin-left: 0;
+    padding: 2px 5px;
+    font-size: 0.6rem;
+  }
+}
+
+.sidebar-footer {
+  padding: var(--portal-sp-2);
+  border-top: 1px solid var(--portal-border);
+  display: flex;
+  flex-direction: column;
+  gap: var(--portal-sp-1);
+}
+
+// ---- Main area ----
+.admin-main {
+  flex: 1;
+  margin-left: 16rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  transition: margin-left 0.25s ease;
+
+  .admin-shell.sidebar-collapsed & {
+    margin-left: 4rem;
+  }
+}
+
+.admin-header {
+  height: 4rem;
+  background: var(--portal-surface);
+  border-bottom: 1px solid var(--portal-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--portal-sp-6);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.admin-page-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--portal-text-muted);
+  margin: 0;
+}
+
+.admin-header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--portal-sp-4);
+}
+
+.admin-user {
+  display: flex;
+  align-items: center;
+  gap: var(--portal-sp-2);
+}
+
+.admin-avatar {
+  width: 2.25rem;
+  height: 2.25rem;
+  background: var(--portal-primary);
+  border-radius: var(--portal-radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  i { font-size: 0.875rem; color: #fff; }
+}
+
+.admin-username {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--portal-text);
+}
+
+.admin-content {
+  flex: 1;
+  padding: var(--portal-sp-6);
+  overflow-y: auto;
+}

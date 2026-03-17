@@ -1,0 +1,69 @@
+<div class="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col">
+  <div class="bg-white dark:bg-slate-800 px-4 py-3 flex items-center gap-3 shadow-sm sticky top-0 z-20 border-b border-slate-100 dark:border-slate-700">
+    <a routerLink="/services" class="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-slate-100 rounded-full transition-colors">
+      <i class="fa-solid fa-arrow-left"></i>
+    </a>
+    <h1 class="text-lg font-bold text-slate-900 dark:text-white">შეკითხვა მინისტრს</h1>
+  </div>
+
+  <div class="flex-1 p-5 pb-24 space-y-6">
+    <div class="bg-blue-600 text-white p-5 rounded-2xl shadow-lg relative overflow-hidden">
+      <div class="absolute -right-5 -top-5 opacity-20 text-8xl">
+        <i class="fa-solid fa-scale-balanced"></i>
+      </div>
+      <p class="relative z-10 text-sm leading-relaxed opacity-95">
+        გაქვთ შეკითხვა განათლების სისტემასთან დაკავშირებით? გააგზავნეთ თქვენი შეკითხვა და მიიღეთ ოფიციალური პასუხი.
+      </p>
+    </div>
+
+    <div class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+      <h2 class="font-bold text-slate-800 dark:text-white mb-4">ახალი შეკითხვა</h2>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-500 uppercase mb-1">თემა</label>
+          <input type="text" [ngModel]="subject()" (ngModelChange)="subject.set($event)" placeholder="მაგ: სტიპენდია"
+            class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:outline-none focus:border-blue-500 text-sm text-slate-900 dark:text-white">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-500 uppercase mb-1">ტექსტი</label>
+          <textarea rows="4" [ngModel]="body()" (ngModelChange)="body.set($event)" placeholder="დაწერეთ თქვენი შეკითხვა..."
+            class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg focus:outline-none focus:border-blue-500 text-sm resize-none text-slate-900 dark:text-white"></textarea>
+        </div>
+        <button (click)="send()" [disabled]="!subject() || !body()"
+          class="w-full py-2.5 bg-blue-600 text-white rounded-lg font-medium text-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+          გაგზავნა
+        </button>
+      </div>
+    </div>
+
+    <div>
+      <h2 class="font-bold text-slate-800 dark:text-white mb-3 ml-1">ისტორია</h2>
+      <div class="space-y-4">
+        @for (q of myQuestions(); track q.id) {
+          <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+            <div class="p-4 border-b border-slate-50 dark:border-slate-700">
+              <div class="flex justify-between items-start mb-2">
+                <span class="text-xs text-slate-400">{{ q.date | date:'dd.MM.yyyy' }}</span>
+                <span class="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase"
+                  [ngClass]="q.status === 'answered' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'">
+                  {{ q.status === 'answered' ? 'პასუხი მიღებულია' : 'პასუხის მოლოდინში' }}
+                </span>
+              </div>
+              <h3 class="font-bold text-slate-800 dark:text-white text-sm">{{ q.subject }}</h3>
+              <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">{{ q.body }}</p>
+            </div>
+            @if (q.status === 'answered') {
+              <div class="p-4 bg-slate-50 dark:bg-slate-700/50">
+                <div class="flex items-center gap-2 mb-2">
+                  <i class="fa-solid fa-certificate text-blue-600"></i>
+                  <span class="text-xs font-bold text-blue-700 uppercase">ოფიციალური პასუხი</span>
+                </div>
+                <p class="text-sm text-slate-700 dark:text-slate-200 leading-relaxed">{{ q.answer }}</p>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

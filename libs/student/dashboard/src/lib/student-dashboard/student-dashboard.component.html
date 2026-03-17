@@ -1,0 +1,102 @@
+<div class="p-6 space-y-8 animate-fade-in bg-slate-50 dark:bg-slate-900 min-h-screen transition-colors duration-300">
+  <!-- Header -->
+  <header class="flex justify-between items-center">
+    <div>
+      <h1 class="text-xl font-bold text-slate-900 dark:text-white">გამარჯობა, {{ store.currentStudent().firstName }}</h1>
+      <p class="text-slate-500 dark:text-slate-400 text-xs mt-0.5">სტუდენტური პორტალი</p>
+    </div>
+    <div class="w-10 h-10 rounded-full bg-white dark:bg-slate-800 flex items-center justify-center shadow-sm border border-slate-100 dark:border-slate-700 text-slate-600 dark:text-slate-300 relative">
+       <i class="fa-regular fa-bell"></i>
+       <span class="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-slate-800"></span>
+    </div>
+  </header>
+
+  <!-- Digital ID Card -->
+  <div class="relative w-full aspect-[1.58/1] rounded-3xl overflow-hidden shadow-2xl">
+    <div class="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-900 to-blue-800"></div>
+    <div class="absolute top-[-50%] left-[-20%] w-[100%] h-[100%] bg-blue-500 rounded-full blur-[80px] opacity-30"></div>
+    <div class="absolute bottom-[-20%] right-[-20%] w-[80%] h-[80%] bg-purple-500 rounded-full blur-[60px] opacity-30"></div>
+    <div class="absolute inset-0 p-6 flex flex-col justify-between text-white z-10">
+      <div class="flex justify-between items-start">
+         <div class="flex items-center gap-4">
+            <div class="p-1 bg-white/10 rounded-2xl backdrop-blur-md">
+               <img [src]="store.currentStudent().photoUrl" class="w-14 h-14 rounded-xl object-cover bg-slate-800">
+            </div>
+            <div>
+               <h2 class="font-bold text-lg leading-tight tracking-wide">{{ store.currentStudent().firstName }}<br>{{ store.currentStudent().lastName }}</h2>
+            </div>
+         </div>
+         <div class="w-10 h-10 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center">
+           <i class="fa-solid fa-nfc-symbol text-white/70"></i>
+         </div>
+      </div>
+      <div class="space-y-4">
+         <div>
+            <p class="text-[10px] text-blue-200 uppercase tracking-widest mb-1">უნივერსიტეტი</p>
+            <p class="text-sm font-medium opacity-95 truncate">{{ store.currentStudent().university }}</p>
+         </div>
+         <div class="flex justify-between items-end">
+           <div>
+              <p class="text-[10px] text-blue-200 uppercase tracking-widest mb-0.5">პირადი ნომერი</p>
+              <p class="font-mono text-base tracking-widest opacity-90">{{ store.currentStudent().personalId }}</p>
+           </div>
+           <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase backdrop-blur-md bg-white/20 border border-white/20">
+             {{ activeStatusLabel() }}
+           </span>
+         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Surveys Horizontal Scroll -->
+  <div>
+    <div class="flex justify-between items-center mb-4 px-1">
+      <h3 class="font-bold text-slate-900 dark:text-white text-sm">მიმდინარე კითხვარები</h3>
+      <a routerLink="/services/surveys" class="text-xs text-blue-600 dark:text-blue-400 font-medium">ყველას ნახვა</a>
+    </div>
+    <div class="flex gap-4 overflow-x-auto pb-4 -mx-6 px-6 no-scrollbar">
+      @for (survey of activeSurveys(); track survey.id) {
+        <a routerLink="/services/surveys" class="flex-shrink-0 w-64 bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col gap-3 transition-all hover:border-purple-300">
+           <div class="flex items-start justify-between">
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center text-purple-600 bg-purple-100">
+                <i class="fa-solid fa-clipboard-question"></i>
+              </div>
+              <span class="px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 text-[10px] font-bold">ახალი</span>
+           </div>
+           <div class="flex-1">
+             <h4 class="font-bold text-sm text-slate-800 dark:text-white leading-tight line-clamp-2">{{ survey.title }}</h4>
+             <p class="text-[10px] text-slate-400 mt-1">ვადა: {{ survey.dueDate | date:'dd.MM.yyyy' }}</p>
+           </div>
+           <button class="w-full text-center py-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-bold">
+             შევსების დაწყება
+           </button>
+        </a>
+      }
+      @if (activeSurveys().length === 0) {
+        <div class="w-full text-center py-8 bg-slate-100/50 rounded-2xl">
+           <p class="text-sm text-slate-500">აქტიური კითხვარები არ არის</p>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Offers Horizontal Scroll -->
+  <div>
+    <div class="flex justify-between items-center mb-4 px-1">
+      <h3 class="font-bold text-slate-900 dark:text-white text-sm">შეთავაზებები</h3>
+    </div>
+    <div class="flex gap-4 overflow-x-auto pb-4 -mx-6 px-6 no-scrollbar">
+      @for (offer of store.offers(); track offer.id) {
+        <div class="flex-shrink-0 w-36 bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col gap-3">
+           <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white" [style.backgroundColor]="offer.color">
+             <i [class]="'fa-solid ' + offer.icon"></i>
+           </div>
+           <div>
+             <h4 class="font-bold text-xs text-slate-800 dark:text-white leading-tight">{{ offer.title }}</h4>
+             <p class="text-[10px] text-slate-400 mt-1">{{ offer.subtitle }}</p>
+           </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

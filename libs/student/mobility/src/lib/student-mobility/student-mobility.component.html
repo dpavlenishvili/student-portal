@@ -1,0 +1,119 @@
+<div class="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col">
+  <!-- Header -->
+  <div class="bg-white dark:bg-slate-800 px-6 py-4 shadow-sm sticky top-0 z-20 flex justify-between items-center border-b border-slate-100 dark:border-slate-700">
+    <h1 class="text-xl font-bold text-slate-900 dark:text-white">მობილობა</h1>
+    <div class="px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded text-[10px] font-bold text-slate-500 uppercase">
+      {{ store.mobilityWindowOpen() ? 'ეტაპი: აქტიური' : 'ეტაპი: დახურული' }}
+    </div>
+  </div>
+
+  <div class="p-6 pb-24 space-y-6">
+    @if (!store.mobilityWindowOpen()) {
+      <div class="flex flex-col items-center justify-center py-10 text-center space-y-4">
+        <div class="w-20 h-20 bg-slate-200 dark:bg-slate-800 rounded-full flex items-center justify-center text-slate-400 text-3xl">
+          <i class="fa-solid fa-clock"></i>
+        </div>
+        <h2 class="text-lg font-bold text-slate-800 dark:text-slate-200">მობილობა დასრულებულია</h2>
+        <p class="text-sm text-slate-500 max-w-xs">მობილობის ფანჯარა ამჟამად დახურულია.</p>
+      </div>
+    } @else {
+      @if (!checkEligibility().eligible) {
+        <div class="bg-orange-50 dark:bg-orange-900/20 p-5 rounded-2xl border border-orange-100 flex items-start gap-4">
+          <i class="fa-solid fa-triangle-exclamation text-orange-500 mt-1"></i>
+          <div>
+            <h3 class="font-bold text-orange-800 dark:text-orange-300 text-sm">თქვენ არ ხართ უფლებამოსილი</h3>
+            <p class="text-xs text-orange-700 mt-1">{{ checkEligibility().reason }}</p>
+          </div>
+        </div>
+      } @else {
+        <!-- Fee Status -->
+        <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex items-center justify-between">
+          <div>
+            <p class="text-xs font-bold text-slate-500 uppercase">მობილობის საფასური</p>
+            <p class="text-sm font-bold text-slate-800 dark:text-slate-200">40.00 GEL</p>
+          </div>
+          <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase bg-green-100 text-green-700">
+            გადახდილია
+          </span>
+        </div>
+
+        <!-- Tabs -->
+        <div class="flex p-1 bg-slate-200 dark:bg-slate-700 rounded-xl">
+          <button (click)="activeTab.set('search')"
+            class="flex-1 py-2.5 rounded-lg text-xs font-bold transition-all"
+            [class]="activeTab() === 'search' ? 'bg-white dark:bg-slate-600 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500'">
+            ვაკანსიები
+          </button>
+          <button (click)="activeTab.set('applications')"
+            class="flex-1 py-2.5 rounded-lg text-xs font-bold transition-all"
+            [class]="activeTab() === 'applications' ? 'bg-white dark:bg-slate-600 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500'">
+            განაცხადები
+          </button>
+        </div>
+
+        @if (activeTab() === 'search') {
+          <div class="space-y-4">
+            <div class="relative">
+              <input type="text" [(ngModel)]="searchTerm" placeholder="უნივერსიტეტი, პროგრამა..."
+                class="w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:border-blue-500 text-slate-900 dark:text-white placeholder-slate-400">
+              <i class="fa-solid fa-magnifying-glass absolute left-3 top-3.5 text-slate-400"></i>
+            </div>
+            <div class="space-y-3">
+              @for (prog of filteredPrograms(); track prog.id) {
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
+                  <div class="flex justify-between items-start mb-2">
+                    <span class="bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-1 rounded-md">{{ prog.city }}</span>
+                    <span class="text-blue-600 text-[10px] font-bold px-2 py-1 bg-blue-50 rounded-md">ადგილი: {{ prog.vacancies }}</span>
+                  </div>
+                  <h3 class="font-bold text-slate-900 dark:text-white text-sm">{{ prog.university }}</h3>
+                  <p class="text-xs text-slate-500 mt-1">{{ prog.programName }}</p>
+                  <button (click)="apply(prog)"
+                    class="mt-4 w-full py-3 rounded-xl text-xs font-bold bg-slate-900 dark:bg-slate-700 text-white active:scale-95 transition-all">
+                    განაცხადის დამატება
+                  </button>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        @if (activeTab() === 'applications') {
+          <div class="space-y-4">
+            @if (myApplications().length === 0) {
+              <div class="text-center py-10 opacity-50">
+                <i class="fa-regular fa-folder-open text-3xl mb-2 text-slate-400"></i>
+                <p class="text-xs text-slate-500">განაცხადები არ მოიძებნა</p>
+              </div>
+            }
+            @for (app of myApplications(); track app.id) {
+              <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-1 h-full"
+                  [ngClass]="{
+                    'bg-yellow-400': app.status === 'submitted',
+                    'bg-green-500': app.status === 'approved',
+                    'bg-red-500': app.status === 'rejected'
+                  }"></div>
+                <div class="flex justify-between items-start pl-3">
+                  <div>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase mb-1">პრიორიტეტი #{{ app.priority }}</p>
+                    <h3 class="font-bold text-slate-900 dark:text-white text-sm">{{ app.university }}</h3>
+                    <p class="text-xs text-slate-500 mt-0.5">{{ app.programName }}</p>
+                  </div>
+                  <div class="text-right">
+                    <span class="block text-[10px] font-bold uppercase"
+                      [ngClass]="{
+                        'text-yellow-600': app.status === 'submitted',
+                        'text-green-600': app.status === 'approved',
+                        'text-red-600': app.status === 'rejected'
+                      }">{{ app.status }}</span>
+                    <span class="text-[10px] text-slate-400 mt-1 block">{{ app.date | date:'shortDate' }}</span>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      }
+    }
+  </div>
+</div>
