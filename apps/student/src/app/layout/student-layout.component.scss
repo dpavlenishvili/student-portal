@@ -9,8 +9,7 @@
 :host {
   display: flex;
   flex-direction: column;
-  // --app-height is set by JS (screen.height in PWA, innerHeight otherwise)
-  height: var(--app-height, 100dvh);
+  flex: 1;
   width: 100%;
   max-width: 28rem;
   margin: 0 auto;
@@ -32,10 +31,7 @@
 
 .bottom-nav {
   flex-shrink: 0;
-  // Extra height to fill the home-indicator gap on iOS PWA
-  height: calc(4rem + env(safe-area-inset-bottom, 0px));
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-  box-sizing: border-box;
+  height: 4rem;
   background: var(--portal-surface);
   border-top: 1px solid var(--portal-border);
   display: flex;

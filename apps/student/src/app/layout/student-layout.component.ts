@@ -39,7 +39,12 @@ export class StudentLayoutComponent implements OnInit, OnDestroy {
       (navigator as any).standalone === true ||
       window.matchMedia('(display-mode: standalone)').matches;
 
-    const h = isStandalone ? window.screen.height : window.innerHeight;
-    this.el.nativeElement.style.setProperty('--app-height', `${h}px`);
+    if (isStandalone) {
+      // Force html element to physical screen height — this is the ONLY
+      // way to make the flex chain reach the home-indicator zone on iOS PWA,
+      // because 100vh/100dvh and position:fixed bottom:0 all stop at the
+      // safe-area edge (~34px above the physical screen bottom).
+      document.documentElement.style.height = window.screen.height + 'px';
+    }
   }
 }
