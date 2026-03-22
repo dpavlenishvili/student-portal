@@ -1,12 +1,71 @@
 <div class="p-6 space-y-6">
-  <div class="flex justify-between items-center">
+  <!-- Header -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
     <h1 class="text-2xl font-bold text-slate-800 dark:text-white">მობილობის განაცხადები</h1>
-    <div class="flex gap-2">
-      <span class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-bold">{{ pendingApps().length }} მოლოდინში</span>
-      <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">{{ approvedApps().length }} დამტკიცებული</span>
+    <div class="flex flex-wrap gap-2">
+      <span class="px-3 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 rounded-full text-xs font-bold">{{ pendingApps().length }} მოლოდინში</span>
+      <span class="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full text-xs font-bold">{{ approvedApps().length }} დამტკიცებული</span>
+      <span class="px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-full text-xs font-bold">{{ rejectedApps().length }} უარყოფილი</span>
     </div>
   </div>
 
+  <!-- Mobility Deadline & Window Control -->
+  <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+      <h2 class="text-lg font-bold text-slate-800 dark:text-white">მობილობის ვადები</h2>
+      <button
+        (click)="toggleMobilityWindow()"
+        class="px-4 py-2 rounded-lg text-sm font-bold transition-colors"
+        [ngClass]="store.mobilityDeadline().isOpen
+          ? 'bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50'
+          : 'bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400 dark:hover:bg-green-900/50'">
+        @if (store.mobilityDeadline().isOpen) {
+          <i class="fa-solid fa-lock mr-2"></i>ფანჯრის დახურვა
+        } @else {
+          <i class="fa-solid fa-lock-open mr-2"></i>ფანჯრის გახსნა
+        }
+      </button>
+    </div>
+    <div class="flex flex-col md:flex-row gap-4 items-end">
+      <div class="flex-1">
+        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">დაწყების თარიღი</label>
+        <input type="date" [ngModel]="deadlineStartDate()" (ngModelChange)="deadlineStartDate.set($event)"
+          class="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+      </div>
+      <div class="flex-1">
+        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">დასრულების თარიღი</label>
+        <input type="date" [ngModel]="deadlineEndDate()" (ngModelChange)="deadlineEndDate.set($event)"
+          class="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+      </div>
+      <button (click)="saveDeadline()"
+        class="px-6 py-2 bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-colors">
+        <i class="fa-solid fa-floppy-disk mr-2"></i>შენახვა
+      </button>
+    </div>
+    <div class="mt-3 flex items-center gap-2">
+      <span class="w-2.5 h-2.5 rounded-full" [ngClass]="store.mobilityDeadline().isOpen ? 'bg-green-500' : 'bg-red-500'"></span>
+      <span class="text-xs text-slate-500 dark:text-slate-400">
+        სტატუსი: {{ store.mobilityDeadline().isOpen ? 'ღია' : 'დახურული' }}
+        &middot; {{ store.mobilityDeadline().startDate | date:'dd/MM/yyyy' }} – {{ store.mobilityDeadline().endDate | date:'dd/MM/yyyy' }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="flex gap-1 bg-slate-100 dark:bg-slate-800 rounded-xl p-1">
+    @for (tab of tabs; track tab.key) {
+      <button
+        (click)="setTab(tab.key)"
+        class="flex-1 px-4 py-2 rounded-lg text-sm font-bold transition-colors"
+        [ngClass]="activeTab() === tab.key
+          ? 'bg-white dark:bg-slate-700 text-slate-800 dark:text-white shadow-sm'
+          : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'">
+        {{ tab.label }}
+      </button>
+    }
+  </div>
+
+  <!-- Table -->
   <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
     <table class="w-full">
       <thead class="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
@@ -19,8 +78,8 @@
         </tr>
       </thead>
       <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-        @for (app of store.mobilityApplications(); track app.id) {
-          <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+        @for (app of filteredApps(); track app.id) {
+          <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer" (click)="openDetail(app)">
             <td class="px-6 py-4">
               <div class="font-bold text-sm text-slate-800 dark:text-white">{{ app.studentName }}</div>
               <div class="text-xs text-slate-400 font-mono">{{ app.personalId }}</div>
@@ -31,21 +90,21 @@
             </td>
             <td class="px-6 py-4">
               <span class="px-2 py-1 rounded-full text-[10px] font-bold"
-                [ngClass]="app.paymentStatus === 'paid' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'">
+                [ngClass]="app.paymentStatus === 'paid' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'">
                 {{ app.paymentStatus === 'paid' ? 'გადახდილია' : 'გადახდა მოლოდინში' }}
               </span>
             </td>
             <td class="px-6 py-4">
               <span class="px-2 py-1 rounded-full text-[10px] font-bold"
                 [ngClass]="{
-                  'bg-yellow-100 text-yellow-700': app.status === 'submitted',
-                  'bg-green-100 text-green-700': app.status === 'approved',
-                  'bg-red-100 text-red-700': app.status === 'rejected'
+                  'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400': app.status === 'submitted',
+                  'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400': app.status === 'approved',
+                  'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400': app.status === 'rejected'
                 }">
                 {{ app.status === 'submitted' ? 'მოლოდინში' : app.status === 'approved' ? 'დამტკიცებული' : 'უარყოფილი' }}
               </span>
             </td>
-            <td class="px-6 py-4">
+            <td class="px-6 py-4" (click)="$event.stopPropagation()">
               @if (app.status === 'submitted') {
                 <div class="flex gap-2">
                   <button (click)="approve(app.id)" class="px-3 py-1 bg-green-600 text-white rounded-lg text-xs font-bold hover:bg-green-700 transition-colors">
@@ -55,9 +114,20 @@
                     უარყოფა
                   </button>
                 </div>
+              } @else if (app.paymentStatus === 'pending' && app.status === 'approved') {
+                <button (click)="verifyPayment(app.id)" class="px-3 py-1 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors">
+                  გადახდის დადასტურება
+                </button>
               } @else {
                 <span class="text-xs text-slate-400">–</span>
               }
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="5" class="px-6 py-12 text-center text-slate-400 text-sm">
+              <i class="fa-solid fa-inbox text-2xl mb-2 block"></i>
+              განაცხადები არ მოიძებნა
             </td>
           </tr>
         }
@@ -65,3 +135,81 @@
     </table>
   </div>
 </div>
+
+<!-- Detail Modal -->
+@if (selectedApp(); as app) {
+  <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" (click)="closeDetail()">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 w-full max-w-lg" (click)="$event.stopPropagation()">
+      <div class="flex justify-between items-center p-6 border-b border-slate-200 dark:border-slate-700">
+        <h2 class="text-lg font-bold text-slate-800 dark:text-white">განაცხადის დეტალები</h2>
+        <button (click)="closeDetail()" class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="p-6 space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">სტუდენტი</p>
+            <p class="text-sm font-bold text-slate-800 dark:text-white">{{ app.studentName }}</p>
+          </div>
+          <div>
+            <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">პირადი ნომერი</p>
+            <p class="text-sm font-mono text-slate-800 dark:text-white">{{ app.personalId }}</p>
+          </div>
+          <div>
+            <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">უნივერსიტეტი</p>
+            <p class="text-sm text-slate-800 dark:text-white">{{ app.university }}</p>
+          </div>
+          <div>
+            <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">პროგრამა</p>
+            <p class="text-sm text-slate-800 dark:text-white">{{ app.programName }}</p>
+          </div>
+          <div>
+            <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">თარიღი</p>
+            <p class="text-sm text-slate-800 dark:text-white">{{ app.date | date:'dd/MM/yyyy' }}</p>
+          </div>
+          <div>
+            <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">პრიორიტეტი</p>
+            <p class="text-sm text-slate-800 dark:text-white">{{ app.priority }}</p>
+          </div>
+          <div>
+            <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">გადახდის სტატუსი</p>
+            <span class="px-2 py-1 rounded-full text-[10px] font-bold"
+              [ngClass]="app.paymentStatus === 'paid' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'">
+              {{ app.paymentStatus === 'paid' ? 'გადახდილია' : 'გადახდა მოლოდინში' }}
+            </span>
+          </div>
+          <div>
+            <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">სტატუსი</p>
+            <span class="px-2 py-1 rounded-full text-[10px] font-bold"
+              [ngClass]="{
+                'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400': app.status === 'submitted',
+                'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400': app.status === 'approved',
+                'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400': app.status === 'rejected'
+              }">
+              {{ app.status === 'submitted' ? 'მოლოდინში' : app.status === 'approved' ? 'დამტკიცებული' : 'უარყოფილი' }}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="p-6 border-t border-slate-200 dark:border-slate-700 flex justify-end gap-2">
+        @if (app.status === 'submitted') {
+          <button (click)="approve(app.id); closeDetail()" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-bold hover:bg-green-700 transition-colors">
+            დამტკიცება
+          </button>
+          <button (click)="reject(app.id); closeDetail()" class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-bold hover:bg-red-700 transition-colors">
+            უარყოფა
+          </button>
+        }
+        @if (app.paymentStatus === 'pending' && app.status === 'approved') {
+          <button (click)="verifyPayment(app.id); closeDetail()" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-colors">
+            გადახდის დადასტურება
+          </button>
+        }
+        <button (click)="closeDetail()" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg text-sm font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+          დახურვა
+        </button>
+      </div>
+    </div>
+  </div>
+}

@@ -1,13 +1,17 @@
 <div class="p-6 space-y-6">
   <div class="flex justify-between items-center">
     <h1 class="text-2xl font-bold text-slate-800 dark:text-white">კვლევები და კითხვარები</h1>
-    <button (click)="showCreate.set(true)" class="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition-colors flex items-center gap-2">
+    <button (click)="openCreate()" class="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition-colors flex items-center gap-2">
       <i class="fa-solid fa-plus"></i> ახალი კითხვარი
     </button>
   </div>
 
   <!-- Stats -->
-  <div class="grid grid-cols-2 gap-4">
+  <div class="grid grid-cols-3 gap-4">
+    <div class="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 text-center">
+      <div class="text-2xl font-black text-yellow-600">{{ draftSurveys().length }}</div>
+      <div class="text-xs text-slate-500 mt-1">დრაფტი</div>
+    </div>
     <div class="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 text-center">
       <div class="text-2xl font-black text-blue-600">{{ activeSurveys().length }}</div>
       <div class="text-xs text-slate-500 mt-1">აქტიური</div>
@@ -18,34 +22,103 @@
     </div>
   </div>
 
+  <!-- Filter Bar -->
+  <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-4">
+    <div class="flex items-center gap-2 mb-3">
+      <i class="fa-solid fa-filter text-slate-400 text-sm"></i>
+      <span class="text-sm font-bold text-slate-700 dark:text-slate-300">ფილტრები</span>
+      @if (hasActiveFilters()) {
+        <button (click)="clearFilters()" class="ml-auto text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400">
+          გასუფთავება
+        </button>
+      }
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      <div>
+        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">უნივერსიტეტი</label>
+        <select [ngModel]="filterUniversity()" (ngModelChange)="filterUniversity.set($event); filterFaculty.set('')"
+          class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white focus:outline-none focus:border-blue-500">
+          <option value="">ყველა</option>
+          @for (uni of universities(); track uni) {
+            <option [value]="uni">{{ uni }}</option>
+          }
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">ფაკულტეტი</label>
+        <select [ngModel]="filterFaculty()" (ngModelChange)="filterFaculty.set($event)"
+          class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white focus:outline-none focus:border-blue-500">
+          <option value="">ყველა</option>
+          @for (fac of filterFaculties(); track fac) {
+            <option [value]="fac">{{ fac }}</option>
+          }
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">თარიღიდან</label>
+        <input type="date" [ngModel]="filterDateFrom()" (ngModelChange)="filterDateFrom.set($event)"
+          class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white focus:outline-none focus:border-blue-500">
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">თარიღამდე</label>
+        <input type="date" [ngModel]="filterDateTo()" (ngModelChange)="filterDateTo.set($event)"
+          class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white focus:outline-none focus:border-blue-500">
+      </div>
+    </div>
+  </div>
+
   <!-- Survey List -->
   <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
     <div class="divide-y divide-slate-100 dark:divide-slate-800">
-      @for (survey of store.surveys(); track survey.id) {
+      @for (survey of filteredSurveys(); track survey.id) {
         <div class="p-5 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors" (click)="selectSurvey(survey)">
           <div class="flex justify-between items-start">
             <div class="flex-1">
               <div class="flex items-center gap-2 mb-1">
-                <span class="text-[10px] px-2 py-0.5 rounded-full font-bold"
-                  [ngClass]="survey.status === 'active' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'">
-                  {{ survey.status === 'active' ? 'აქტიური' : 'დასრულებული' }}
+                <span class="text-[10px] px-2 py-0.5 rounded-full font-bold" [ngClass]="getStatusClasses(survey.status)">
+                  {{ getStatusLabel(survey.status) }}
                 </span>
-                <span class="text-[10px] text-slate-400 uppercase">{{ survey.target }}</span>
+                @if (survey.status !== 'draft') {
+                  <i class="fa-solid fa-lock text-[10px] text-slate-400" title="გამოქვეყნებული - რედაქტირება შეუძლებელია"></i>
+                }
+                <span class="text-[10px] text-slate-400">{{ getTargetLabel(survey) }}</span>
               </div>
               <h3 class="font-bold text-sm text-slate-800 dark:text-white">{{ survey.title }}</h3>
               <p class="text-xs text-slate-500 mt-1 line-clamp-1">{{ survey.description }}</p>
             </div>
-            <div class="text-right ml-4 shrink-0">
-              <div class="text-sm font-bold text-slate-800 dark:text-white">{{ survey.responsesCount }}</div>
-              <div class="text-[10px] text-slate-400">პასუხი</div>
+            <div class="text-right ml-4 shrink-0 flex items-center gap-2">
+              @if (survey.status === 'draft') {
+                <button (click)="openEdit(survey); $event.stopPropagation()"
+                  class="p-1.5 text-slate-400 hover:text-blue-600 transition-colors" title="რედაქტირება">
+                  <i class="fa-solid fa-pen-to-square text-sm"></i>
+                </button>
+                <button (click)="publishSurvey(survey); $event.stopPropagation()"
+                  class="p-1.5 text-slate-400 hover:text-green-600 transition-colors" title="გამოქვეყნება">
+                  <i class="fa-solid fa-paper-plane text-sm"></i>
+                </button>
+                <button (click)="deleteSurvey(survey); $event.stopPropagation()"
+                  class="p-1.5 text-slate-400 hover:text-red-600 transition-colors" title="წაშლა">
+                  <i class="fa-solid fa-trash text-sm"></i>
+                </button>
+              }
+              <div class="text-right">
+                <div class="text-sm font-bold text-slate-800 dark:text-white">{{ survey.responsesCount }}</div>
+                <div class="text-[10px] text-slate-400">პასუხი</div>
+              </div>
             </div>
           </div>
           <div class="mt-2 flex items-center gap-3 text-xs text-slate-400">
             <span>ვადა: {{ survey.dueDate | date:'dd.MM.yyyy' }}</span>
+            <span>კითხვები: {{ survey.questions.length }}</span>
             @if (survey.averageTime) {
               <span>საშ. დრო: {{ survey.averageTime }}</span>
             }
           </div>
+        </div>
+      }
+      @empty {
+        <div class="p-8 text-center text-slate-400 text-sm">
+          კითხვარები ვერ მოიძებნა
         </div>
       }
     </div>
@@ -56,7 +129,17 @@
     <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" (click)="closeDetail()">
       <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-lg w-full p-6 max-h-[80vh] overflow-y-auto" (click)="$event.stopPropagation()">
         <div class="flex justify-between items-start mb-4">
-          <h3 class="font-bold text-slate-900 dark:text-white pr-4">{{ s.title }}</h3>
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="text-[10px] px-2 py-0.5 rounded-full font-bold" [ngClass]="getStatusClasses(s.status)">
+                {{ getStatusLabel(s.status) }}
+              </span>
+              @if (s.status !== 'draft') {
+                <i class="fa-solid fa-lock text-xs text-slate-400"></i>
+              }
+            </div>
+            <h3 class="font-bold text-slate-900 dark:text-white pr-4">{{ s.title }}</h3>
+          </div>
           <button (click)="closeDetail()" class="text-slate-400 hover:text-slate-600 shrink-0"><i class="fa-solid fa-xmark text-lg"></i></button>
         </div>
         <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">{{ s.description }}</p>
@@ -72,10 +155,21 @@
             </div>
           }
         </div>
+        <div class="flex items-center gap-2 mb-3 text-xs text-slate-500">
+          <span>სამიზნე: {{ getTargetLabel(s) }}</span>
+          <span>|</span>
+          <span>ვადა: {{ s.dueDate | date:'dd.MM.yyyy' }}</span>
+        </div>
         <div class="space-y-3">
           @for (q of s.questions; track q.id) {
             <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl">
-              <p class="text-sm font-medium text-slate-800 dark:text-white mb-2">{{ q.text }}</p>
+              <div class="flex items-center gap-2 mb-2">
+                <p class="text-sm font-medium text-slate-800 dark:text-white flex-1">{{ q.text }}</p>
+                @if (q.required) {
+                  <span class="text-[10px] px-1.5 py-0.5 bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 rounded font-bold">სავალდებულო</span>
+                }
+                <span class="text-[10px] px-1.5 py-0.5 bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-400 rounded">{{ getQuestionTypeLabel(q.type) }}</span>
+              </div>
               @if (q.options && q.responses) {
                 <div class="space-y-2">
                   @for (opt of q.options; track $index; let i = $index) {
@@ -90,38 +184,232 @@
                   }
                 </div>
               }
+              @if (q.type === 'text' && q.textResponses && q.textResponses.length > 0) {
+                <div class="space-y-1 mt-2">
+                  @for (resp of q.textResponses; track $index) {
+                    <div class="text-xs text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-900 p-2 rounded">{{ resp }}</div>
+                  }
+                </div>
+              }
+              @if (q.options && !q.responses) {
+                <div class="space-y-1">
+                  @for (opt of q.options; track $index) {
+                    <div class="text-xs text-slate-500">{{ opt }}</div>
+                  }
+                </div>
+              }
             </div>
           }
+          @empty {
+            <div class="text-center text-slate-400 text-sm py-4">კითხვები არ არის დამატებული</div>
+          }
         </div>
+        @if (s.status === 'draft') {
+          <div class="flex gap-2 mt-4">
+            <button (click)="openEdit(s); closeDetail()" class="flex-1 py-2 bg-blue-600 text-white rounded-lg font-bold text-sm hover:bg-blue-700 transition-colors">
+              <i class="fa-solid fa-pen-to-square mr-1"></i> რედაქტირება
+            </button>
+            <button (click)="publishSurvey(s); closeDetail()" class="flex-1 py-2 bg-green-600 text-white rounded-lg font-bold text-sm hover:bg-green-700 transition-colors">
+              <i class="fa-solid fa-paper-plane mr-1"></i> გამოქვეყნება
+            </button>
+          </div>
+        }
       </div>
     </div>
   }
 
-  <!-- Create Survey Modal -->
+  <!-- Create / Edit Survey Modal -->
   @if (showCreate()) {
-    <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" (click)="showCreate.set(false)">
-      <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-md w-full p-6" (click)="$event.stopPropagation()">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="font-bold text-slate-900 dark:text-white">ახალი კითხვარი</h3>
-          <button (click)="showCreate.set(false)" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+    <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" (click)="closeCreate()">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto" (click)="$event.stopPropagation()">
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="font-bold text-lg text-slate-900 dark:text-white">
+            {{ editingSurvey() ? 'კითხვარის რედაქტირება' : 'ახალი კითხვარი' }}
+          </h3>
+          <button (click)="closeCreate()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
         </div>
-        <div class="space-y-4">
+
+        <div class="space-y-5">
+          <!-- Title -->
           <div>
-            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">სათაური</label>
+            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">სათაური</label>
             <input type="text" [ngModel]="newTitle()" (ngModelChange)="newTitle.set($event)"
-              class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-sm focus:outline-none focus:border-blue-500 text-slate-900 dark:text-white"
+              class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:border-blue-500 text-slate-900 dark:text-white"
               placeholder="კვლევის სათაური">
           </div>
+
+          <!-- Description -->
           <div>
-            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">აღწერა</label>
+            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">აღწერა</label>
             <textarea [ngModel]="newDesc()" (ngModelChange)="newDesc.set($event)" rows="3"
-              class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-sm focus:outline-none focus:border-blue-500 text-slate-900 dark:text-white resize-none"
+              class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:border-blue-500 text-slate-900 dark:text-white resize-none"
               placeholder="კვლევის აღწერა"></textarea>
           </div>
-          <button (click)="submitCreate()" [disabled]="!newTitle() || !newDesc()"
-            class="w-full py-2.5 bg-blue-600 text-white rounded-lg font-bold text-sm hover:bg-blue-700 disabled:opacity-50 transition-colors">
-            შექმნა
-          </button>
+
+          <!-- Due Date -->
+          <div>
+            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">ვადა</label>
+            <input type="date" [ngModel]="newDueDate()" (ngModelChange)="newDueDate.set($event)"
+              class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:border-blue-500 text-slate-900 dark:text-white">
+          </div>
+
+          <!-- Target Audience -->
+          <div>
+            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">სამიზნე აუდიტორია</label>
+            <div class="flex gap-2 mb-3">
+              <button (click)="newTarget.set('global')"
+                class="px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"
+                [ngClass]="newTarget() === 'global' ? 'bg-blue-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'">
+                გლობალური
+              </button>
+              <button (click)="newTarget.set('university')"
+                class="px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"
+                [ngClass]="newTarget() === 'university' ? 'bg-blue-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'">
+                უნივერსიტეტი
+              </button>
+              <button (click)="newTarget.set('faculty')"
+                class="px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"
+                [ngClass]="newTarget() === 'faculty' ? 'bg-blue-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'">
+                ფაკულტეტი
+              </button>
+            </div>
+
+            @if (newTarget() === 'university' || newTarget() === 'faculty') {
+              <div class="mb-3">
+                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">უნივერსიტეტი</label>
+                <select [ngModel]="newTargetUniversity()" (ngModelChange)="newTargetUniversity.set($event); newTargetFaculty.set('')"
+                  class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white focus:outline-none focus:border-blue-500">
+                  <option value="">აირჩიეთ უნივერსიტეტი</option>
+                  @for (uni of universities(); track uni) {
+                    <option [value]="uni">{{ uni }}</option>
+                  }
+                </select>
+              </div>
+            }
+
+            @if (newTarget() === 'faculty') {
+              <div>
+                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">ფაკულტეტი</label>
+                <select [ngModel]="newTargetFaculty()" (ngModelChange)="newTargetFaculty.set($event)"
+                  class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white focus:outline-none focus:border-blue-500"
+                  [disabled]="!newTargetUniversity()">
+                  <option value="">აირჩიეთ ფაკულტეტი</option>
+                  @for (fac of faculties(); track fac) {
+                    <option [value]="fac">{{ fac }}</option>
+                  }
+                </select>
+              </div>
+            }
+          </div>
+
+          <!-- Questions Section -->
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">კითხვები ({{ newQuestions().length }})</label>
+              <div class="flex items-center gap-2">
+                <select [ngModel]="newQuestionType()" (ngModelChange)="newQuestionType.set($event)"
+                  class="px-2 py-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-900 dark:text-white focus:outline-none focus:border-blue-500">
+                  <option value="radio">ერთი არჩევანი</option>
+                  <option value="checkbox">მრავალი არჩევანი</option>
+                  <option value="text">ტექსტური</option>
+                </select>
+                <button (click)="addQuestion()"
+                  class="px-3 py-1 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors flex items-center gap-1">
+                  <i class="fa-solid fa-plus text-[10px]"></i> დაამატე კითხვა
+                </button>
+              </div>
+            </div>
+
+            <div class="space-y-4">
+              @for (q of newQuestions(); track q.id; let i = $index; let first = $first; let last = $last) {
+                <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <!-- Question header -->
+                  <div class="flex items-center gap-2 mb-3">
+                    <span class="text-xs font-bold text-slate-400">{{ i + 1 }}.</span>
+                    <select [ngModel]="q.type" (ngModelChange)="updateQuestionType(i, $event)"
+                      class="px-2 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded text-xs text-slate-900 dark:text-white focus:outline-none focus:border-blue-500">
+                      <option value="radio">ერთი არჩევანი</option>
+                      <option value="checkbox">მრავალი არჩევანი</option>
+                      <option value="text">ტექსტური</option>
+                    </select>
+                    <button (click)="toggleRequired(i)"
+                      class="px-2 py-1 rounded text-xs font-bold transition-colors"
+                      [ngClass]="q.required ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400' : 'bg-slate-200 text-slate-500 dark:bg-slate-700 dark:text-slate-400'">
+                      {{ q.required ? 'სავალდებულო' : 'არასავალდებულო' }}
+                    </button>
+                    <div class="ml-auto flex items-center gap-1">
+                      @if (!first) {
+                        <button (click)="moveQuestion(i, 'up')" class="p-1 text-slate-400 hover:text-blue-600 transition-colors" title="ზემოთ">
+                          <i class="fa-solid fa-chevron-up text-xs"></i>
+                        </button>
+                      }
+                      @if (!last) {
+                        <button (click)="moveQuestion(i, 'down')" class="p-1 text-slate-400 hover:text-blue-600 transition-colors" title="ქვემოთ">
+                          <i class="fa-solid fa-chevron-down text-xs"></i>
+                        </button>
+                      }
+                      <button (click)="removeQuestion(i)" class="p-1 text-slate-400 hover:text-red-600 transition-colors" title="წაშლა">
+                        <i class="fa-solid fa-trash text-xs"></i>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Question text -->
+                  <input type="text" [ngModel]="q.text" (ngModelChange)="updateQuestionText(i, $event)"
+                    class="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-lg text-sm focus:outline-none focus:border-blue-500 text-slate-900 dark:text-white mb-3"
+                    placeholder="კითხვის ტექსტი">
+
+                  <!-- Options for radio/checkbox -->
+                  @if (q.type !== 'text' && q.options) {
+                    <div class="space-y-2">
+                      @for (opt of q.options; track $index; let oi = $index) {
+                        <div class="flex items-center gap-2">
+                          <i class="fa-regular text-slate-400 text-xs"
+                            [ngClass]="q.type === 'radio' ? 'fa-circle' : 'fa-square'"></i>
+                          <input type="text" [ngModel]="opt" (ngModelChange)="updateOption(i, oi, $event)"
+                            class="flex-1 px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-lg text-sm focus:outline-none focus:border-blue-500 text-slate-900 dark:text-white"
+                            placeholder="ვარიანტი {{ oi + 1 }}">
+                          @if ((q.options!.length) > 1) {
+                            <button (click)="removeOption(i, oi)" class="p-1 text-slate-400 hover:text-red-600 transition-colors">
+                              <i class="fa-solid fa-xmark text-xs"></i>
+                            </button>
+                          }
+                        </div>
+                      }
+                      <button (click)="addOption(i)"
+                        class="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 font-bold flex items-center gap-1 mt-1">
+                        <i class="fa-solid fa-plus text-[10px]"></i> ვარიანტის დამატება
+                      </button>
+                    </div>
+                  }
+
+                  @if (q.type === 'text') {
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-lg p-3">
+                      <p class="text-xs text-slate-400 italic">ტექსტური პასუხის ველი</p>
+                    </div>
+                  }
+                </div>
+              }
+              @empty {
+                <div class="text-center py-8 text-slate-400 text-sm border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl">
+                  <i class="fa-solid fa-clipboard-question text-2xl mb-2 block"></i>
+                  კითხვები არ არის დამატებული. დააჭირეთ "დაამატე კითხვა" ღილაკს.
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex gap-3 pt-2">
+            <button (click)="saveDraft()" [disabled]="!newTitle() || !newDesc()"
+              class="flex-1 py-2.5 bg-yellow-500 text-white rounded-lg font-bold text-sm hover:bg-yellow-600 disabled:opacity-50 transition-colors flex items-center justify-center gap-2">
+              <i class="fa-solid fa-floppy-disk"></i> დრაფტად შენახვა
+            </button>
+            <button (click)="publishFromModal()" [disabled]="!newTitle() || !newDesc() || newQuestions().length === 0"
+              class="flex-1 py-2.5 bg-green-600 text-white rounded-lg font-bold text-sm hover:bg-green-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2">
+              <i class="fa-solid fa-paper-plane"></i> გამოქვეყნება
+            </button>
+          </div>
         </div>
       </div>
     </div>

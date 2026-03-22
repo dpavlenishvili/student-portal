@@ -45,6 +45,10 @@
           <span class="nav-badge">{{ pendingQuestionCount }}</span>
         }
       </a>
+      <a routerLink="/users" routerLinkActive="active" class="nav-link">
+        <i class="fas fa-user-gear"></i>
+        @if (!sidebarCollapsed()) { <span>მომხმარებლები</span> }
+      </a>
     </nav>
 
     <div class="sidebar-footer">

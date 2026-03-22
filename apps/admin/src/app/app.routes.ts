@@ -43,6 +43,11 @@ export const appRoutes: Routes = [
         loadChildren: () =>
           import('@portal/admin/minister').then(m => m.adminMinisterRoutes),
       },
+      {
+        path: 'users',
+        loadChildren: () =>
+          import('@portal/admin/users').then(m => m.adminUsersRoutes),
+      },
     ],
   },
   { path: '**', redirectTo: '' },

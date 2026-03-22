@@ -29,7 +29,8 @@
       "@portal/admin/mobility": ["libs/admin/mobility/src/index.ts"],
       "@portal/admin/surveys": ["libs/admin/surveys/src/index.ts"],
       "@portal/admin/issues": ["libs/admin/issues/src/index.ts"],
-      "@portal/admin/minister": ["libs/admin/minister/src/index.ts"]
+      "@portal/admin/minister": ["libs/admin/minister/src/index.ts"],
+      "@portal/admin/users": ["libs/admin/users/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

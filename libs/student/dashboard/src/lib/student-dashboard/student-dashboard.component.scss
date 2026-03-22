@@ -9,3 +9,16 @@
   scrollbar-width: none;
   &::-webkit-scrollbar { display: none; }
 }
+.notification-unread {
+  @apply bg-blue-50;
+  :host-context(.dark) & {
+    @apply bg-blue-900/10;
+  }
+}
+.animate-slide-down {
+  animation: slideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}

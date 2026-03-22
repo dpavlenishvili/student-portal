@@ -3,15 +3,19 @@ export type ApplicationStatus = 'submitted' | 'approved' | 'rejected';
 export type PaymentStatus = 'pending' | 'paid';
 export type IssueStatus = 'new' | 'review' | 'resolved';
 export type QuestionStatus = 'pending' | 'answered';
-export type SurveyStatus = 'active' | 'completed';
+export type SurveyStatus = 'draft' | 'active' | 'completed';
 export type SurveyTarget = 'global' | 'university' | 'faculty';
 export type QuestionType = 'radio' | 'checkbox' | 'text';
+export type NotificationType = 'survey' | 'issue' | 'minister' | 'mobility' | 'system';
+export type AdminRole = 'super_admin' | 'moderator' | 'analyst' | 'viewer';
 
 export interface User {
   id: string;
   firstName: string;
   lastName: string;
   personalId: string;
+  phone: string;
+  birthDate: string;
   status: UserStatus;
   university: string;
   faculty: string;
@@ -34,6 +38,8 @@ export interface MobilityProgram {
   duration: string;
   language: string;
   deadline: string;
+  description?: string;
+  requirements?: string;
 }
 
 export interface MobilityApplication {
@@ -69,6 +75,7 @@ export interface SurveyQuestion {
   options?: string[];
   responses?: number[];
   textResponses?: string[];
+  required?: boolean;
 }
 
 export interface Survey {
@@ -79,6 +86,8 @@ export interface Survey {
   dueDate: string;
   target: SurveyTarget;
   targetId?: number;
+  targetUniversity?: string;
+  targetFaculty?: string;
   questions: SurveyQuestion[];
   responsesCount: number;
   averageTime?: string;
@@ -97,6 +106,28 @@ export interface IssueReport {
   date: string;
   photoUrl?: string;
   studentId?: string;
+}
+
+export interface Notification {
+  id: number;
+  type: NotificationType;
+  title: string;
+  message: string;
+  date: string;
+  read: boolean;
+  link?: string;
+}
+
+export interface AdminUser {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  username: string;
+  role: AdminRole;
+  permissions: string[];
+  active: boolean;
+  createdAt: string;
 }
 
 export interface Offer {
@@ -125,4 +156,10 @@ export interface AdminAuthUser {
   role: 'admin';
   username: string;
   permissions: string[];
+}
+
+export interface MobilityDeadline {
+  startDate: string;
+  endDate: string;
+  isOpen: boolean;
 }

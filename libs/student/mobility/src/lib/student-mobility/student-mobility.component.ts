@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { DatePipe, NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MockStoreService, MobilityProgram } from '@portal/shared';
+import { MockStoreService, MobilityApplication, MobilityProgram } from '@portal/shared';
 import { StudentAuthStore } from '@portal/student/auth';
 
 @Component({
@@ -17,6 +17,16 @@ export class StudentMobilityComponent {
   protected readonly authStore = inject(StudentAuthStore);
   protected readonly activeTab = signal<'search' | 'applications'>('search');
   protected searchTerm = '';
+
+  // Edit modal state
+  protected readonly editingApplication = signal<MobilityApplication | null>(null);
+  protected editPriority = 1;
+  protected editProgramId = 0;
+
+  // Delete confirmation state
+  protected readonly deletingApplicationId = signal<number | null>(null);
+
+  protected readonly deadline = computed(() => this.store.mobilityDeadline());
 
   protected readonly filteredPrograms = computed(() => {
     const term = this.searchTerm.toLowerCase();
@@ -59,5 +69,49 @@ export class StudentMobilityComponent {
       programId: prog.id,
     });
     this.activeTab.set('applications');
+  }
+
+  protected openEditModal(app: MobilityApplication): void {
+    this.editPriority = app.priority;
+    this.editProgramId = app.programId;
+    this.editingApplication.set(app);
+  }
+
+  protected closeEditModal(): void {
+    this.editingApplication.set(null);
+  }
+
+  protected saveEdit(): void {
+    const app = this.editingApplication();
+    if (!app) return;
+
+    const selectedProgram = this.store.mobilityPrograms().find(p => p.id === this.editProgramId);
+    const updates: Partial<MobilityApplication> = {
+      priority: this.editPriority,
+    };
+    if (selectedProgram) {
+      updates.programId = selectedProgram.id;
+      updates.programName = selectedProgram.programName;
+      updates.university = selectedProgram.university;
+    }
+
+    this.store.updateMobilityApplication(app.id, updates);
+    this.editingApplication.set(null);
+  }
+
+  protected confirmDelete(appId: number): void {
+    this.deletingApplicationId.set(appId);
+  }
+
+  protected cancelDelete(): void {
+    this.deletingApplicationId.set(null);
+  }
+
+  protected deleteApplication(): void {
+    const id = this.deletingApplicationId();
+    if (id !== null) {
+      this.store.deleteMobilityApplication(id);
+      this.deletingApplicationId.set(null);
+    }
   }
 }

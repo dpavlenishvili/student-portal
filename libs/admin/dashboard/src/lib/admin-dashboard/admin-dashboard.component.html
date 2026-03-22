@@ -1,5 +1,5 @@
 <div class="space-y-8 p-6">
-  <!-- KPI Cards -->
+  <!-- KPI Cards Row 1 -->
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
     <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col justify-between h-32 hover:shadow-md transition-all group">
       <div class="flex justify-between items-start">
@@ -57,6 +57,48 @@
     </div>
   </div>
 
+  <!-- KPI Cards Row 2 -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col justify-between h-32 hover:shadow-md transition-all group">
+      <div class="flex justify-between items-start">
+        <div>
+          <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">სულ კითხვარი</p>
+          <h3 class="text-3xl font-black text-slate-800 dark:text-white mt-2">{{ totalSurveys() }}</h3>
+        </div>
+        <div class="w-10 h-10 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+          <i class="fa-solid fa-clipboard-list"></i>
+        </div>
+      </div>
+      <div class="text-xs text-slate-400">{{ activeSurveys() }} აქტიური</div>
+    </div>
+
+    <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col justify-between h-32 hover:shadow-md transition-all group">
+      <div class="flex justify-between items-start">
+        <div>
+          <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">კითხვარის პასუხები</p>
+          <h3 class="text-3xl font-black text-slate-800 dark:text-white mt-2">{{ totalResponses() }}</h3>
+        </div>
+        <div class="w-10 h-10 rounded-lg bg-teal-50 dark:bg-teal-900/30 text-teal-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+          <i class="fa-solid fa-chart-pie"></i>
+        </div>
+      </div>
+      <div class="text-xs text-slate-400">ჯამური პასუხები</div>
+    </div>
+
+    <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col justify-between h-32 hover:shadow-md transition-all group">
+      <div class="flex justify-between items-start">
+        <div>
+          <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">ადმინისტრატორები</p>
+          <h3 class="text-3xl font-black text-slate-800 dark:text-white mt-2">{{ totalAdminUsers() }}</h3>
+        </div>
+        <div class="w-10 h-10 rounded-lg bg-cyan-50 dark:bg-cyan-900/30 text-cyan-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+          <i class="fa-solid fa-user-shield"></i>
+        </div>
+      </div>
+      <div class="text-xs text-slate-400">სისტემის მომხმარებლები</div>
+    </div>
+  </div>
+
   <!-- Chart + Activity -->
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
     <div class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 h-96">
@@ -82,33 +124,38 @@
     <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 h-96 overflow-hidden flex flex-col">
       <h3 class="font-bold text-slate-800 dark:text-white mb-4">ბოლო აქტივობა</h3>
       <div class="flex-1 overflow-y-auto space-y-4 pr-2">
-        @for (app of store.mobilityApplications().slice(0, 5); track app.id) {
+        @for (item of recentActivity(); track $index) {
           <div class="flex gap-4 items-start">
-            <div class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 shrink-0">
-              <i class="fa-solid fa-file-signature text-xs"></i>
+            <div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0" [class]="item.iconBg + ' ' + item.iconColor">
+              <i [class]="item.icon + ' text-xs'"></i>
             </div>
             <div>
               <p class="text-sm text-slate-800 dark:text-slate-200">
-                <span class="font-bold">{{ app.studentName }}</span> შეავსო განაცხადი მობილობაზე.
+                <span class="font-bold">{{ item.text }}</span> — {{ item.detail }}
               </p>
-              <p class="text-xs text-slate-400 mt-1">{{ app.date | date:'short' }}</p>
-            </div>
-          </div>
-        }
-        @for (issue of store.issues().slice(0, 3); track issue.id) {
-          <div class="flex gap-4 items-start">
-            <div class="w-8 h-8 rounded-full bg-red-50 flex items-center justify-center text-red-500 shrink-0">
-              <i class="fa-solid fa-triangle-exclamation text-xs"></i>
-            </div>
-            <div>
-              <p class="text-sm text-slate-800 dark:text-slate-200">
-                დაფიქსირდა ხარვეზი: <span class="font-medium">{{ issue.category }}</span>
-              </p>
-              <p class="text-xs text-slate-400 mt-1">{{ issue.date | date:'short' }}</p>
+              <p class="text-xs text-slate-400 mt-1">{{ item.date | date:'short' }}</p>
             </div>
           </div>
         }
       </div>
+    </div>
+  </div>
+
+  <!-- University Breakdown -->
+  <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6">
+    <h3 class="font-bold text-slate-800 dark:text-white mb-6">უნივერსიტეტების მიხედვით</h3>
+    <div class="space-y-4">
+      @for (uni of universityBreakdown(); track uni.university) {
+        <div class="flex items-center gap-4">
+          <div class="w-48 md:w-64 text-sm text-slate-700 dark:text-slate-300 font-medium truncate shrink-0">{{ uni.university }}</div>
+          <div class="flex-1 h-6 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-blue-500 rounded-full transition-all duration-500"
+              [style.width.%]="(uni.count / maxUniversityCount()) * 100">
+            </div>
+          </div>
+          <div class="w-10 text-right text-sm font-bold text-slate-800 dark:text-white shrink-0">{{ uni.count }}</div>
+        </div>
+      }
     </div>
   </div>
 </div>
