@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "student",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["nx", "serve", "student", "--port=4200"],
+      "port": 4200
+    },
+    {
+      "name": "admin",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["nx", "serve", "admin", "--port=4201"],
+      "port": 4201
+    },
+    {
+      "name": "student-prod",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "-s", "dist/apps/student/browser", "-l", "4202", "--no-clipboard"],
+      "port": 4202
+    }
+  ]
+}

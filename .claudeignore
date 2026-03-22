@@ -1,0 +1,48 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+tmp/
+out-tsc/
+.angular/
+
+# Nx cache
+.nx/
+
+# IDE
+.idea/
+.vscode/
+.settings/
+.c9/
+
+# System
+.DS_Store
+Thumbs.db
+
+# Logs
+npm-debug.log
+yarn-error.log
+testem.log
+
+# Large/binary assets
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.ico
+*.woff
+*.woff2
+*.ttf
+*.eot
+*.svg
+
+# Lock files (huge, not useful for Claude)
+package-lock.json
+
+# Test coverage
+coverage/
+
+# Cache
+.sass-cache/
+connect.lock
