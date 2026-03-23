@@ -18,20 +18,29 @@
   box-shadow: 0 0 60px rgb(0 0 0 / 0.15);
 }
 
+// Fills the status bar zone (0 → 47px on iPhone 13).
+// As a flex sibling BEFORE .app-content it pushes the scrollport down,
+// so sticky top-0 headers inside .app-content stick below the status bar.
+.status-bar-cover {
+  flex-shrink: 0;
+  height: var(--sat, env(safe-area-inset-top, 0px));
+  background: var(--portal-surface);
+}
+
 .app-content {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
-  // Push content below iOS status bar / Dynamic Island
-  padding-top: env(safe-area-inset-top, 0);
   background: var(--portal-surface);
 }
 
 .bottom-nav {
   flex-shrink: 0;
-  height: 4rem;
+  // 4rem content + home indicator zone (34px on iPhone 13)
+  height: calc(4rem + var(--sab, env(safe-area-inset-bottom, 0px)));
+  padding-bottom: var(--sab, env(safe-area-inset-bottom, 0px));
   background: var(--portal-surface);
   border-top: 1px solid var(--portal-border);
   display: flex;
@@ -50,7 +59,7 @@
   padding: var(--portal-sp-3) var(--portal-sp-2);
   color: var(--portal-text-muted);
   text-decoration: none;
-  font-size: 0.625rem;
+  font-size: 0.6875rem; // 11px — Apple HIG minimum for tab bar labels
   font-weight: 500;
   transition: color 0.2s;
   position: relative;
@@ -61,7 +70,7 @@
   }
 
   span {
-    font-size: 0.625rem;
+    font-size: 0.6875rem; // 11px
     line-height: 1;
   }
 

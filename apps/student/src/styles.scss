@@ -6,11 +6,36 @@
 @tailwind components;
 @tailwind utilities;
 
+// ── CSS custom property bridge for safe-area-insets ─────────────────
+// env(safe-area-inset-*) = 0px in ALL desktop browsers including Chrome DevTools.
+// By bridging to --sat/--sab custom properties, Playwright tests can inject
+// real values (e.g. 47px / 34px for iPhone 13) via JS to simulate iOS PWA.
+// On a real iPhone the browser evaluates env() and provides the true values.
+:root {
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+}
+
 // ── Mobile-native feel ──────────────────────────────────────────────
 
 // Remove tap flash on iOS/Android
 * {
   -webkit-tap-highlight-color: transparent;
+}
+
+// Prevent iOS long-press callout (save image, copy link, etc.) on interactive elements
+a, button, img, [role="button"] {
+  -webkit-touch-callout: none;
+}
+
+// Prevent iOS auto-zoom on input focus (font-size must be >= 16px)
+input, textarea, select {
+  font-size: max(16px, 1em) !important;
+}
+
+// Prevent double-tap zoom on nav items
+.nav-item, .bottom-nav a {
+  touch-action: manipulation;
 }
 
 // Full-height flex chain: html → body → app-root → portal-student-layout

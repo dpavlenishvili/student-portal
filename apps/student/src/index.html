@@ -24,6 +24,16 @@
 
   <!-- Prevent phone number detection -->
   <meta name="format-detection" content="telephone=no" />
+
+  <!-- FOUC prevention: apply saved theme class before Angular bootstraps -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('portal_theme');
+        if (t === 'dark') document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+  </script>
 </head>
 <body>
   <app-root></app-root>

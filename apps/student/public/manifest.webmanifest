@@ -2,6 +2,7 @@
   "name": "სტუდენტის პორტალი",
   "short_name": "პორტალი",
   "description": "სტუდენტის პირადი კაბინეტი",
+  "id": "/",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
